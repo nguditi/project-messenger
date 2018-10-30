@@ -1,22 +1,37 @@
-import React from 'react'
-import {Container,Button} from 'reactstrap'
-import { compose } from 'redux'
-import { connect } from 'react-redux'
-import { firebaseConnect, isLoaded, isEmpty } from 'react-redux-firebase'
-import ChatRoom from './ChatRoom'
+import React, {Component} from 'react'
+import {Container, Button} from 'reactstrap'
+import {compose} from 'redux'
+import {connect} from 'react-redux'
+import {firebaseConnect, isLoaded, isEmpty} from 'react-redux-firebase'
+import ProtectPage from './ProtectPage'
+
 // import GoogleButton from 'react-google-button' // optional
 
-const LoginPage = ({ firebase, auth }) => (
-    <Container>
-        <Button  // <GoogleButton/> button can be used instead
-            onClick={() => firebase.login({ provider: 'google', type: 'popup' })}
-        >Login With Google </Button>
-        <div>
-            <h2>Auth</h2>
-            {
-                !isLoaded(auth) ? <span>Loading...</span> : isEmpty(auth) ? <span>Not Authed</span> : <ChatRoom/>
-            }
-        </div>
-    </Container>
-)
-export default compose(firebaseConnect(), connect(({ firebase: { auth } }) => ({ auth })))(LoginPage)
+class LoginPage extends Component {
+
+    async loginGG() {
+        await this.props.firebase.login({provider: 'google', type: 'popup'})
+        this.render();
+    }
+
+    render() {
+        console.log("login",this.props.auth)
+        return (
+            <Container className="text-center">
+                <h2>Authentication</h2>
+                <div>
+                    {
+                        !isLoaded(this.props.auth) ? <span>Loading...</span>
+                            : isEmpty(this.props.auth) ? <span>You must login to access</span>
+                            : <ProtectPage/>
+                    }
+                </div>
+                <Button color="primary"
+                        onClick={() => this.loginGG()}
+                >Login With Google </Button>
+            </Container>
+        )
+    }
+}
+
+export default compose(firebaseConnect(), connect(({firebase: {auth}}) => ({auth})))(LoginPage)

@@ -15,7 +15,6 @@ var firebaseConfig = {
 
 const config = {
     userProfile: 'users', // firebase root where user profiles are stored
-    attachAuthIsReady: true, // attaches auth is ready promise to store
     firebaseStateName: 'firebase' // should match the reducer name ('firebase' is default)
 }
 
@@ -30,8 +29,5 @@ export default function configureStore (initialState = {}){
 
     const store = createStoreWithFirebase(rootReducer)
 
-    store.firebaseAuthIsReady.then(() => {
-        console.log('Auth has loaded') // eslint-disable-line no-console
-    })
     return store;
 }
