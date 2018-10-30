@@ -11,18 +11,19 @@ class ChatRoom extends Component {
 
     componentWillReceiveProps()
     {
-        console.log(this.props.auth)
         if (isEmpty(this.props.auth))
             this.props.history.push('/');
     }
 
     componentWillMount()
     {
-        console.log("Mount",this.props.auth)
         if (!isLoaded(this.props.auth) && isEmpty(this.props.auth)) {
-            console.log("mount",this.props.auth)
             this.props.history.push('/');
         }
+    }
+
+    test() {
+        console.log(this.props.firebase.get());
     }
 
     render() {
@@ -34,10 +35,14 @@ class ChatRoom extends Component {
                         this.props.firebase.logout()
                     }}
             >Logout </Button>
+            <Button color="primary"
+                    onClick={() => this.test()}
+            >Test </Button>
+            <pre>{JSON.stringify(this.props.auth, null, 2)}</pre>
             {/*<MessagesContainer />*/}
             {/*<InputContainer/>*/}
         </Container>)
     }
 }
 
-export default compose(firebaseConnect(),withRouter,connect(({ firebase: { auth} }) => ({ auth })))(ChatRoom);
+export default compose(firebaseConnect(),withRouter,connect(({ firebase: {auth} }) => ({ auth })))(ChatRoom);

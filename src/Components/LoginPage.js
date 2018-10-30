@@ -15,7 +15,6 @@ class LoginPage extends Component {
     }
 
     render() {
-        console.log("login",this.props.auth)
         return (
             <Container className="text-center">
                 <h2>Authentication</h2>
