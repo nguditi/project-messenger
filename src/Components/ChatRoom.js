@@ -1,43 +1,51 @@
+import '../Utils/style.scss'
+import {compose} from "redux";
+import ChatWith from  './ChatWith'
+import {connect} from 'react-redux'
 import React,{Component} from 'react';
 import {Container,Button} from 'reactstrap';
-import  UserContainer from  '../Containers/UserContainer'
-import MessagesContainer from '../Containers/MessagesContainer'
-import InputContainer from '../Containers/InputContainer'
-import {compose} from "redux";
 import {withRouter} from 'react-router-dom';
-import {firebaseConnect,isLoaded, isEmpty} from "react-redux-firebase";
-import {connect} from 'react-redux'
-import '../Utils/style.scss'
+import {setOnline,logout,chooseUser} from "../Actions";
+import UserContainer from  '../Containers/UserContainer'
+import InputContainer from '../Containers/InputContainer'
+import MessagesContainer from '../Containers/MessagesContainer'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {firebaseConnect,isLoaded, isEmpty} from "react-redux-firebase";
+
 
 class ChatRoom extends Component {
 
     componentWillReceiveProps()
     {
-        if (isEmpty(this.props.auth))
-            this.props.history.push('/');
+        if (this.props.auth.isEmpty)
+             this.props.history.push('/');
     }
 
     componentWillMount()
     {
-        if (!isLoaded(this.props.auth) && isEmpty(this.props.auth)) {
+        if (!this.props.auth.isLoaded && this.props.auth.isEmpty ) {
             this.props.history.push('/');
+        }
+        if (this.props.uid) {
+            this.props.setOnline()
+            this.props.chooseUser(this.props.uid)
         }
     }
 
-
     logOut() {
-        this.props.firebase.update(`users/${this.props.auth.uid}/online`,{status: false,
-            lastonline: this.props.firebase.database.ServerValue.TIMESTAMP})
-        this.props.firebase.logout()
+        if (this.props.uid) {
+            this.props.logout()
+        }
     }
 
     render() {
         return(
             <Container>
                 <h2 className = "text-center">Messenger</h2>
-                <Button className = "float-right" color="danger" onClick={() => this.logOut()}
-                >Logout </Button>
+                <div className ="col-md-12 d-inline-block">
+                    <Button className = "float-right" color="danger" onClick={() => this.logOut()}>Logout </Button>
+                </div>
+
                 <div>
                     <div className="people-list col-md-4" id="people-list">
                         <div className="search">
@@ -46,13 +54,37 @@ class ChatRoom extends Component {
                         </div>
                         <UserContainer/>
                     </div>
-                {/*<MessagesContainer />*/}
-                {/*<InputContainer/>*/}
+
+                    <div className ="chat col-md-8">
+                        <ChatWith/>
+                        <MessagesContainer/>
+                        <InputContainer/>
+                    </div>
                 </div>
             </Container>)
 
     }
 }
 
+const mapStateToProps = (state) => {
+    return{
+        auth: state.firebase.auth,
+        uid: state.firebase.auth.uid,
+    }
+};
 
-export default compose(firebaseConnect(),withRouter,connect(({ firebase: {auth}}) => ({auth})))(ChatRoom);
+const mapDispatchToProps = (dispatch) => {
+    return {
+        setOnline: () => {
+            dispatch(setOnline())
+        },
+        logout: ()=>{
+            dispatch(logout())
+        },
+        chooseUser:(id)=>{
+            dispatch(chooseUser(id))
+        }
+    }
+}
+
+export default compose(firebaseConnect(),withRouter,connect(mapStateToProps,mapDispatchToProps))(ChatRoom);

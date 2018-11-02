@@ -1,7 +1,7 @@
 import {compose,applyMiddleware,createStore } from 'redux'
 import { reactReduxFirebase,getFirebase } from 'react-redux-firebase'
 import firebase from 'firebase'
-import rootReducer from './Reducers'
+import rootReducer from './Reducers/rootReducer'
 import thunk from 'redux-thunk';
 
 var firebaseConfig = {
@@ -28,6 +28,5 @@ export default function configureStore (initialState = {}){
 
 
     const store = createStoreWithFirebase(rootReducer)
-
     return store;
 }

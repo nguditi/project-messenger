@@ -4,15 +4,15 @@ import {sendMessage} from "../Actions";
 
 const mapStateToProps = (state) => {
     return {
-        user: state.user,
+        chatWith:state.chatWith
     }
 }
 
-const mapDispatchToProps = (dispatch,user) => {
+const mapDispatchToProps = (dispatch) => {
     return {
-        submitMessage: (text) => {
+        submitMessage: (text,idchatWith) => {
             if (text.trim().length !== 0) {
-                dispatch(sendMessage(text,user));
+                dispatch(sendMessage(text,idchatWith));
             }
         },
     }

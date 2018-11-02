@@ -13,11 +13,11 @@ const UserContainer = ({users}) => {
     let listUser;
     if (users) {
         listUser = users.map((user) => {
-            return (<User key={user.key} {...user}/>);
+            return (<User key={user.key} user={user}/>);
         })
     }
     return (
-        <ul>
+        <ul id = "a-scroll">
             {listUser}
         </ul>
     )
