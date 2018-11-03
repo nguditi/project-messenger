@@ -17,6 +17,11 @@ export const addPreImage = (img) => ({
     img:img
 })
 
+export const searchUser = (text) =>({
+    type: action.SEARCH_USER,
+    text:text
+})
+
 export const clearImg = () => ({
     type: action.CLEAR_IMAGE,
 })
@@ -54,57 +59,57 @@ export const sendMessage = (text,listImg,idReceiver) =>
             }
         };
         //save img
+
+
         if (listImg.length > 0)
         {
-              // (listImg.forEach((img)=>{
-                let metadata = {
-                    contentType: 'image/jpeg'
-                };
-                let uploadTask = storageRef.child(`images/`+listImg[0].name+msg.author.uid).put(listImg[0], metadata);
-                uploadTask.on('state_changed', function(snapshot){
-                    // Observe state change events such as progress, pause, and resume
-                    // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-                    var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    switch (snapshot.state) {
-                        case firebase.storage.TaskState.PAUSED: // or 'paused'
-                            break;
-                        case firebase.storage.TaskState.RUNNING: // or 'running'
-                            break;
-                    }
-                }, function(error) {
-                }, function() {
-                    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-                        msg.media = [...msg.media, downloadURL]
-                        let ref = firebase.database().ref(`messages/${idReceiver}`)
-                        ref.once('value', function(snapshot) {
-                            if (snapshot.hasChild(author.uid)) {
-                                ref = firebase.database().ref(`messages/${idReceiver}/${author.uid}`).push();
-                            }
-                            else {
-                                ref = firebase.database().ref(`messages/${author.uid}/${idReceiver}`).push();
-                            }
-                        }).then(() =>{
-                            msg.id = ref.key;
-                            ref.set(msg);
-                        });
-                    });
-                });
+               // (listImg.forEach((img)=>{
+            let metadata = {
+                contentType: 'image/jpeg'
+            };
+            let arrPromise = [];
+            for (let i=0;i<listImg.length; i++){
+                let uploadTask = storageRef.child(`images/`+listImg[i].name+msg.author.uid).put(listImg[i], metadata);
+                arrPromise.push(uploadTask.snapshot.ref.getDownloadURL());
+            }
+            Promise.all(arrPromise).then((res)=>{
+                res.forEach((downloadURL)=>
+                {
+                    msg.media = [...msg.media, downloadURL]
+                })
+                Promise.all( msg.media).then((res) => {
+                    let storeid = (idReceiver > author.uid) ? idReceiver + author.uid : author.uid + idReceiver
+                    let ref = firebase.database().ref(`messages/${storeid}`).push()
+                    msg.id = ref.key;
+                    ref.set(msg);
+                })
+            })
+
+                // let uploadTask = storageRef.child(`images/`+listImg[0].name+msg.author.uid).put(listImg[0], metadata);
+                // uploadTask.on('state_changed', function(snapshot){
+                //     // Observe state change events such as progress, pause, and resume
+                //     // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                //     var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                //     switch (snapshot.state) {
+                //         case firebase.storage.TaskState.PAUSED: // or 'paused'
+                //             break;
+                //         case firebase.storage.TaskState.RUNNING: // or 'running'
+                //             break;
+                //     }
+                // }, function(error) {
+                // }, function() {
+                //     uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                //
+                //     });
+                // });
 
              // }))
         }
         else {
-            let ref = firebase.database().ref(`messages/${idReceiver}`)
-            ref.once('value', function(snapshot) {
-                if (snapshot.hasChild(author.uid)) {
-                    ref = firebase.database().ref(`messages/${idReceiver}/${author.uid}`).push();
-                }
-                else {
-                    ref = firebase.database().ref(`messages/${author.uid}/${idReceiver}`).push();
-                }
-            }).then(() =>{
-                msg.id = ref.key;
-                ref.set(msg);
-            });
+            let storeid = (idReceiver > author.uid) ? idReceiver + author.uid : author.uid + idReceiver
+            let ref = firebase.database().ref(`messages/${storeid}`).push()
+            msg.id = ref.key;
+            ref.set(msg);
         }
     }
 
@@ -124,29 +129,19 @@ export const chooseUser = (idUser) =>
 
         let id = user.key;
         let thisid = firebase.auth().currentUser.uid;
-
-        let ref = firebase.database().ref(`messages/${thisid}`)
-        ref.once('value', function(snapshot) {
-            if (snapshot.hasChild(id)) {
-                ref = firebase.database().ref(`messages/${thisid}/${id}`).orderByKey();
-            }
-            else {
-                ref = firebase.database().ref(`messages/${id}/${thisid}`).orderByKey();
-            }
-        }).then(() =>{
-            ref.limitToLast(20).once('value').then((dataSnapshot) => {
-                const messages = dataSnapshot.val() || [];
-                dispatch(addChunkMessages(messages))
-            }).then(()=>
-                ref.limitToLast(1).on('value',(snapshot) =>
-                    setTimeout(() => {
-                        const message = snapshot.val();
-                        dispatch(addMessage(message))
-                    },40))
-            )
-        });
-
-        //
+        let storeid = (thisid > id) ? thisid + id : id + thisid
+        let ref = firebase.database().ref(`messages/${storeid}`).orderByKey();
+        ref.limitToLast(20).once('value').then((dataSnapshot) => {
+            const messages = dataSnapshot.val() || [];
+            dispatch(addChunkMessages(messages))
+        }).then(()=>
+            ref.limitToLast(1).on('value',(snapshot) => {
+                // setTimeout(() => {
+                const message = snapshot.val();
+                dispatch(addMessage(message))
+                // },50))
+            })
+        )
     }
 
 export const logout = () =>
@@ -176,6 +171,4 @@ export const setOnline = () =>
                 })
             }
         })
-
-
     }

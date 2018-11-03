@@ -232,8 +232,16 @@ body {
 
     img {
       width: auto;
-      height:100px;
-      float: left;
+      height:40px;
+      margin-left: 10px;
+      cursor: pointer;
+
+      &:hover {
+        border-color: red;
+        border-width: 3px;
+        border-style: solid;
+
+      }
     }
     textarea {
       width: 100%;

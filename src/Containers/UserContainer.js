@@ -4,18 +4,30 @@ import {firebaseConnect} from "react-redux-firebase";
 import {connect} from 'react-redux'
 import User from "../Components/User";
 import '../Utils/style.scss'
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 const mapStateToProps = (state) => ({
-    users: state.firebase.ordered.users
+    users: state.firebase.ordered.users,
+    searchText: state.searchBar,
+
 });
 
-const UserContainer = ({users}) => {
+const UserContainer = ({users,searchText}) => {
     let listUser;
     if (users) {
-        listUser = users.map((user) => {
-            return (<User key={user.key} user={user}/>);
-        })
+        if (searchText.trim().length !== 0) {
+            const filterusers = users.filter((user) => {
+                return user.value.displayName.toLowerCase().indexOf(searchText.toLowerCase()) !== -1;
+            })
+            listUser = filterusers.map((user) => {
+                return (<User key={user.key} user={user}/>);
+            })
+        }
+        else
+        {
+            listUser = users.map((user) => {
+                return (<User key={user.key} user={user}/>);
+            })
+        }
     }
     return (
         <ul id = "a-scroll">

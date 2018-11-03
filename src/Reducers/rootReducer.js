@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux'
 import chatWith from './user'
 import messages from './messages'
+import searchBar from './searchBar'
 import { firebaseReducer } from 'react-redux-firebase'
 import image from './Image'
 
@@ -10,7 +11,6 @@ const rootReducer = combineReducers({
     chatWith,
     messages,
     image,
-    // chatroom,
-    // user,
+    searchBar,
 })
 export default rootReducer;

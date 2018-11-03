@@ -23,7 +23,6 @@ class DivEdit extends Component{
                     ref={(ip) => { this.inputHtml = ip}}
                     onInput={this.emitChange}
                     onKeyPress={(e)=>this.keyPress(e)}
-                    onKeyDown={(e)=>this.keyDown(e)}
                     contentEditable
                     suppressContentEditableWarning
                 >
@@ -38,13 +37,6 @@ class DivEdit extends Component{
         this.props.clearImg()
     }
 
-    keyDown(e)
-    {
-        if (e.keyCode === 8) {
-            if (this.props.preImg.length > 0)
-                e.preventDefault();
-        }
-    }
 
     keyPress(e) {
         if (e.key === 'Enter') {

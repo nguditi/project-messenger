@@ -5,11 +5,11 @@ import {connect} from 'react-redux'
 import React,{Component} from 'react';
 import {Container,Button} from 'reactstrap';
 import {withRouter} from 'react-router-dom';
+import SearchBar from './SearchBar'
 import {setOnline,logout,chooseUser} from "../Actions";
 import UserContainer from  '../Containers/UserContainer'
 import InputContainer from '../Containers/InputContainer'
 import MessagesContainer from '../Containers/MessagesContainer'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {firebaseConnect} from "react-redux-firebase";
 
 
@@ -26,11 +26,8 @@ class ChatRoom extends Component {
         if (localStorage.getItem("hasAuth" !== "true")) {
             this.props.history.push('/');
         }
-
         this.props.setOnline()
         this.props.chooseUser(this.props.match.params.id)
-
-
     }
 
     logOut() {
@@ -49,10 +46,7 @@ class ChatRoom extends Component {
 
                 <div>
                     <div className="people-list col-md-4" id="people-list">
-                        <div className="search">
-                            <input type="text" placeholder="search" onChange={(e)=>{this.setState({inputText: e.target.value})}}/>
-                            <FontAwesomeIcon icon="search"/>
-                        </div>
+                        <SearchBar/>
                         <UserContainer/>
                     </div>
 

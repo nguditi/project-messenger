@@ -1,5 +1,4 @@
 import {CLEAR_IMAGE, ADD_IMAGE,ADD_PREIMAGE} from '../Constants/ActionTypes'
-import {addMessage} from "../Actions";
 
 const initial = {
     inputImg: [],

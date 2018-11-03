@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {chooseUser} from "../Actions";
 import {withRouter} from "react-router-dom";
+
 class User extends Component {
 
     onClickUser()
