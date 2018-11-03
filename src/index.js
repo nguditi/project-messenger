@@ -6,10 +6,10 @@ import configureStore from "./firebase";
 import 'bootstrap/dist/css/bootstrap.css';
 import './Utils/style.scss'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faSearch,faCircle,faStar} from '@fortawesome/free-solid-svg-icons'
+import { faSearch,faCircle,faStar,faImage} from '@fortawesome/free-solid-svg-icons'
 import { fab} from '@fortawesome/free-brands-svg-icons'
 
-library.add(faSearch,faCircle,faStar,fab)
+library.add(faSearch,faCircle,faStar,fab,faImage)
 const initialState = window.__INITIAL_STATE__ // set initial state here
 const store = configureStore(initialState)
 

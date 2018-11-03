@@ -13,7 +13,7 @@ class LoginPage extends Component {
     {
         if(!isEmpty(this.props.auth)) {
             localStorage.setItem('hasAuth','true')
-            this.props.history.push(`/messenger`)
+            this.props.history.push(`/messenger/${this.props.auth.uid}`)
         }
     }
 

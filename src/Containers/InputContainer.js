@@ -10,9 +10,10 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        submitMessage: (text,idchatWith) => {
-            if (text.trim().length !== 0) {
-                dispatch(sendMessage(text,idchatWith));
+        submitMessage: (text,img,idchatWith) => {
+            let textReal = text.replace('<br>', "");
+            if (textReal.trim().length !== 0 || img.length > 0) {
+                dispatch(sendMessage(textReal,img,idchatWith));
             }
         },
     }

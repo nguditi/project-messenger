@@ -9,6 +9,11 @@ body {
   background-color: #C5DDEB !important;
 }
 
+@media (min-width: 992px) {
+  .container {
+    max-width: 960px;
+  }
+}
 
 #a-scroll::-webkit-scrollbar-track
 {
@@ -64,7 +69,7 @@ body {
   ul {
     padding: 20px;
     list-style: none;
-    height: 755px;
+    height: 770px;
     overflow-y: auto;
     scrollbar-face-color: #4e555b;
 
@@ -166,6 +171,12 @@ body {
       }
     }
 
+    img {
+      height: auto;
+      width: 200px;
+      display: inherit
+    }
+
     .message-data-time {
       color: lighten($gray, 8%);
       padding-left: 6px;
@@ -186,6 +197,7 @@ body {
     }
 
     .my-message {
+      white-space:pre-line;
       background: $blue;
 
       &:after {
@@ -199,6 +211,30 @@ body {
   .chat-message {
     padding: 30px;
 
+    .textarea {
+      -webkit-appearance: textarea;
+      width: 100%;
+      height: 90px;
+      border: none;
+      padding: 10px 20px;
+      font: 16px/22px "Lato", Arial, sans-serif;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      resize: none;
+      overflow-y: auto;
+      background-color: white;
+      white-space: pre;
+    }
+    [contenteditable=true]:empty:before{
+      content: attr(placeholder);
+      display: block;
+    }
+
+    img {
+      width: auto;
+      height:100px;
+      float: left;
+    }
     textarea {
       width: 100%;
       border: none;
@@ -207,7 +243,6 @@ body {
       margin-bottom: 10px;
       border-radius: 5px;
       resize: none;
-
     }
 
     .fa-file-o, .fa-file-image-o {
@@ -218,7 +253,6 @@ body {
     }
 
     button {
-      float: right;
       color: $blue;
       font-size: 16px;
       text-transform: uppercase;
@@ -228,7 +262,7 @@ body {
       background: #F2F5F8;
 
       &:hover {
-        color: darken($blue, 7%);
+        color: darken($blue, 10%);
       }
     }
   }
@@ -241,6 +275,31 @@ body {
 
 .online {
   color: $green;
+}
+
+.inputfile{
+
+  display: inline-block;
+
+  input{
+    width: 0px;
+    height: 0px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+  }
+  label
+  {
+    cursor: pointer;
+    color: #94c2ed;
+
+    &:hover {
+      color: darken($blue, 10%);
+    }
+  }
+
+
 }
 
 .offline {

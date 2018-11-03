@@ -10,10 +10,15 @@ const Message = (msg) => {
     {
         strTime += `, ${date.toLocaleDateString()}`
     }
-    else
+    let listImg
+    if (msg.media && msg.media.length > 0)
     {
-        strTime += `, Today`
+        listImg = msg.media.map((img,index)=>{
+            return(
+                <img key={index} src={img} alt="pic"/>
+            )})
     }
+
     if (msg.idSender === msg.author.id)
     {
         return(
@@ -23,9 +28,9 @@ const Message = (msg) => {
                     <span className="message-data-name" >{msg.author.name}</span>
                     <img src={msg.author.avatar} alt="avatar" className="float-right ml-2" />
                 </div>
-                <span className="message my-message float-right">
-                {msg.text}
-            </span>
+                <span className="message my-message float-right">{msg.text}
+                    {listImg}
+                </span>
             </li>
         )
     }
@@ -37,9 +42,9 @@ const Message = (msg) => {
                     <span className="message-data-name" >{msg.author.name}</span>
                     <span className="message-data-time" >{strTime}</span> &nbsp; &nbsp;
                 </div>
-                <span className="message other-message float-left">
-                {msg.text}
-            </span>
+                <span className="message other-message float-left">{msg.text}
+                    {listImg}
+                </span>
             </li>
         )
     }

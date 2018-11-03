@@ -10,26 +10,27 @@ import UserContainer from  '../Containers/UserContainer'
 import InputContainer from '../Containers/InputContainer'
 import MessagesContainer from '../Containers/MessagesContainer'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {firebaseConnect,isLoaded, isEmpty} from "react-redux-firebase";
+import {firebaseConnect} from "react-redux-firebase";
 
 
 class ChatRoom extends Component {
 
     componentWillReceiveProps()
     {
-        if (this.props.auth.isEmpty)
+        if (localStorage.getItem("hasAuth") !== "true")
              this.props.history.push('/');
     }
 
     componentWillMount()
     {
-        if (!this.props.auth.isLoaded && this.props.auth.isEmpty ) {
+        if (localStorage.getItem("hasAuth" !== "true")) {
             this.props.history.push('/');
         }
-        if (this.props.uid) {
-            this.props.setOnline()
-            this.props.chooseUser(this.props.uid)
-        }
+
+        this.props.setOnline()
+        this.props.chooseUser(this.props.match.params.id)
+
+
     }
 
     logOut() {
@@ -49,7 +50,7 @@ class ChatRoom extends Component {
                 <div>
                     <div className="people-list col-md-4" id="people-list">
                         <div className="search">
-                            <input type="text" placeholder="search"/>
+                            <input type="text" placeholder="search" onChange={(e)=>{this.setState({inputText: e.target.value})}}/>
                             <FontAwesomeIcon icon="search"/>
                         </div>
                         <UserContainer/>
@@ -68,7 +69,6 @@ class ChatRoom extends Component {
 
 const mapStateToProps = (state) => {
     return{
-        auth: state.firebase.auth,
         uid: state.firebase.auth.uid,
     }
 };

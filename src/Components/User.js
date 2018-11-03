@@ -2,12 +2,14 @@ import React,{Component} from 'react';
 import '../Utils/style.scss'
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {chooseUser, sendMessage} from "../Actions";
+import {chooseUser} from "../Actions";
+import {withRouter} from "react-router-dom";
 class User extends Component {
 
     onClickUser()
     {
         if (this.props.chatWith.id !== this.props.user.key) {
+            this.props.history.push(this.props.user.key)
             this.props.chooseUser(this.props.user.key)
         }
     }
@@ -62,4 +64,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps,mapDispatchToProps)(User)
+export default withRouter(connect(mapStateToProps,mapDispatchToProps)(User))

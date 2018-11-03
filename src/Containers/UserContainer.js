@@ -4,6 +4,7 @@ import {firebaseConnect} from "react-redux-firebase";
 import {connect} from 'react-redux'
 import User from "../Components/User";
 import '../Utils/style.scss'
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 const mapStateToProps = (state) => ({
     users: state.firebase.ordered.users
