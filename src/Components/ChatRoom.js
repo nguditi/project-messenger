@@ -17,22 +17,25 @@ class ChatRoom extends Component {
 
     componentWillReceiveProps()
     {
-        if (localStorage.getItem("hasAuth") !== "true")
+        if (!localStorage.getItem("hasAuth") || localStorage.getItem("hasAuth") !== "true")
              this.props.history.push('/');
     }
 
     componentWillMount()
     {
-        if (localStorage.getItem("hasAuth" !== "true")) {
+        if (!localStorage.getItem("hasAuth") || localStorage.getItem("hasAuth" !== "true")) {
             this.props.history.push('/');
         }
-        this.props.setOnline()
-        this.props.chooseUser(this.props.match.params.id)
+        else {
+            this.props.setOnline()
+            this.props.chooseUser(this.props.match.params.id)
+        }
     }
 
     logOut() {
         if (this.props.uid) {
             this.props.logout()
+            localStorage.removeItem('hasAuth')
         }
     }
 

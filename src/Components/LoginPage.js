@@ -17,8 +17,8 @@ class LoginPage extends Component {
         }
     }
 
-    loginGG() {
-         this.props.firebase.login({provider: 'google', type: 'popup'})
+    async loginGG() {
+         await this.props.firebase.login({provider: 'google', type: 'popup'})
     }
 
     render() {

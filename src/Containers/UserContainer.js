@@ -24,29 +24,38 @@ const UserContainer = ({users,searchText,idSender}) => {
         }
         else
         {
-            let thisStat = users.find(obj => obj.key === idSender).value.stat
             let priValue = 100
-            listUser = [].concat(users)
-                .sort((b, a) => {
-                let astat = thisStat[`${a.key}`]
-                let bstat =  thisStat[`${b.key}`]
-                if (astat && bstat)
-                {
-                    // console.log(a.key,b.key)
-                    return ((astat.star === true ? priValue : 1) * (astat.lastChat?astat.lastChat:0) >
-                            (bstat.star === true ? priValue : 1) * (bstat.lastChat?bstat.lastChat:0))
-                }
-                else if (astat || bstat)
-                {
-                    return astat?true:false
-                }
-                else {
-                    return true
-                }
-            })
-                .map((user) =>{
-                return <User key={user.key} user={user}/>
-            })
+            let thisStat = users.find(obj => obj.key === idSender)
+            if (thisStat) {
+                listUser = [].concat(users)
+                    .sort((b, a) => {
+                        if (thisStat.value.stat) {
+                            let astat = thisStat.value.stat[`${a.key}`]
+                            let bstat = thisStat.value.stat[`${b.key}`]
+                            if (astat && bstat) {
+                                if (astat.lastChat && bstat.lastChat) {
+                                    return ((astat.star === true ? priValue : 1) * (astat.lastChat) >
+                                        (bstat.star === true ? priValue : 1) * (bstat.lastChat))
+                                }
+                                else {
+                                    return (astat.star === true ? priValue : 1) > (bstat.star === true ? priValue : 1)
+                                }
+                            }
+                            else if (astat || bstat) {
+                                return astat ? true : false
+                            }
+                            else {
+                                return true
+                            }
+                        }
+                        else {
+                            return true
+                        }
+                    })
+                    .map((user) => {
+                        return <User key={user.key} user={user}/>
+                    })
+            }
         }
     }
     return (

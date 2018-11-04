@@ -2,7 +2,7 @@ import React,{Component} from 'react';
 import '../Utils/style.scss'
 import { connect } from 'react-redux';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {togleStateStar} from "../Actions";
+import {chooseUser, togleStateStar} from "../Actions";
 
 class ChatWith extends Component {
 
@@ -12,6 +12,10 @@ class ChatWith extends Component {
 
     render() {
 
+        if (!this.props.chatWith.avatar || !this.props.chatWith.name)
+        {
+            this.props.chooseUser(this.props.chatWith.id)
+        }
         let active = (this.props.isStar === true) ? "starActive" : "star"
 
         return(
@@ -37,6 +41,9 @@ const mapDispatchToProps = (dispatch) => {
     return {
         togleStateStar: (id,star) => {
             dispatch(togleStateStar(id, star))
+        },
+        chooseUser:(id)=>{
+            dispatch(chooseUser(id))
         }
     }
 }

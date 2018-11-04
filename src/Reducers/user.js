@@ -2,7 +2,7 @@ import {CHANGE_USER} from  '../Constants/ActionTypes'
 
 const initState = {
     id: '0',
-    name:'ghost',
+    name:'ghost...',
     avatar:'https://png.pngtree.com/svg/20160506/anonymous_avatar_182327.png'
 }
 
