@@ -7,7 +7,7 @@ const initState = {
 }
 
 const chatWith = (state = initState, action) => {
-    switch (action.type) {
+     switch (action.type) {
         case CHANGE_USER:
             let tmp ={
                 id: action.id,

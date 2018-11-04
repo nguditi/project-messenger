@@ -147,12 +147,35 @@ body {
       color: $gray;
     }
 
-    .fa-star {
+    .star {
       float: right;
       color: #D8DADF;
-      font-size: 20px;
+      font-size: 30px;
       margin-top: 12px;
+
+      &:hover {
+        cursor: pointer;
+        color: #0149ff;
+        font-size: 35px;
+      }
     }
+
+    .starActive {
+      float: right;
+      color: #0149ff;
+      font-size: 30px;
+      margin-top: 12px;
+
+      &:hover {
+        cursor: pointer;
+        color: #D8DADF;
+        font-size: 35px;
+      }
+    }
+
+
+
+
   }
 
   .chat-history {

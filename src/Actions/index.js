@@ -41,6 +41,52 @@ export const addChunkMessages = (messages) => ({
     messages: messages,
 });
 
+export const changeStar = (stat)=> ({
+    type: action.CHANGE_STAR,
+    stat: stat,
+})
+
+export const togleStateStar= (id,star) =>
+    (dispatch, getState, getFirebase) => {
+        const firebase = getFirebase()
+        let thisid = firebase.auth().currentUser.uid;
+        if (star === true) {
+            firebase.update(`users/${thisid}/stat/${id}`, {
+                star: false
+            })
+        }
+        else{
+            firebase.update(`users/${thisid}/stat/${id}`, {
+                star: true
+            })
+        }
+    }
+
+
+export const checkStar = (id) =>
+    (dispatch, getState, getFirebase) => {
+        const firebase = getFirebase()
+        if (id !== 0) {
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (user) {
+                    let thisid = user.uid;
+                    let ref = firebase.database().ref(`users/${thisid}/stat/${id}`)
+                    ref.once('value', function(snapshot) {
+                        if (!(snapshot.hasChild('star'))) {
+                            ref.update({star:false})
+                        }
+                    }).then(()=>{
+                        ref.on('value', (snapshot) => {
+                            setTimeout(() => {
+                                const stat = snapshot.val()
+                                dispatch(changeStar(stat))
+                            },50)
+                        })
+                    })
+                }
+            })
+        }
+    }
 
 export const sendMessage = (text,listImg,idReceiver) =>
     async (dispatch, getState, getFirebase) => {
@@ -70,6 +116,12 @@ export const sendMessage = (text,listImg,idReceiver) =>
             let arrPromise = [];
             for (let i=0;i<listImg.length; i++){
                 let uploadTask = storageRef.child(`images/`+listImg[i].name+msg.author.uid).put(listImg[i], metadata);
+                // uploadTask.on('state_changed', function(snapshot) {
+                //     switch (snapshot.state) {
+                //         case firebase.storage.TaskState.RUNNING:
+                //             break;
+                //     }
+                // })
                 arrPromise.push(uploadTask.snapshot.ref.getDownloadURL());
             }
             Promise.all(arrPromise).then((res)=>{
@@ -111,6 +163,10 @@ export const sendMessage = (text,listImg,idReceiver) =>
             msg.id = ref.key;
             ref.set(msg);
         }
+        firebase.update(`users/${author.uid}/stat/${idReceiver}`,
+            {
+                lastChat: Date.now()
+            })
     }
 
 export const chooseUser = (idUser) =>
@@ -124,6 +180,7 @@ export const chooseUser = (idUser) =>
             user.avatar = snapshot.val().avatarUrl
         })
 
+        dispatch(checkStar(user.key))
         dispatch(chatWith(user))
         dispatch(clearMessases())
 

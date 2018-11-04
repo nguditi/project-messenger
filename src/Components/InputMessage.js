@@ -41,6 +41,7 @@ class InputMessenger extends Component {
             this.setState({inputText:tmp})
         }
         else if (e.key === 'Enter') {
+            e.preventDefault()
             this.props.submitMessage(this.state.inputText,this.state.inputImg,this.props.chatWith.id)
             this.setState({ inputText: ''})
             this.setState({inputImg:[],preImg:[]})

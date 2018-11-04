@@ -4,7 +4,8 @@ const messages = (state = [], action) => {
     switch (action.type) {
         case ADD_MESSAGE:
             {
-                if (state.map(message => message.id).includes(action.id)) {
+                let id = Object.values(action.message)[0].id
+                if (state.map(message => message.id).includes(id)) {
                     return state;
                 }
                 let tmp = state;
