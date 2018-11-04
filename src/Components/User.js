@@ -10,8 +10,8 @@ class User extends Component {
     onClickUser()
     {
         if (this.props.chatWith.id !== this.props.user.key) {
-            this.props.history.push(this.props.user.key)
             this.props.chooseUser(this.props.user.key)
+            this.props.history.push(this.props.user.key)
         }
     }
 

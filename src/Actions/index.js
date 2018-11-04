@@ -183,9 +183,9 @@ export const chooseUser = (idUser) =>
             user.name = snapshot.val().displayName
             user.avatar = snapshot.val().avatarUrl
         }).then(()=>{
+            dispatch(clearMessases())
             dispatch(chatWith(user))
             dispatch(checkStar(user.key))
-            dispatch(clearMessases())
         })
 
         firebase.auth().onAuthStateChanged(function(user) {
@@ -200,7 +200,10 @@ export const chooseUser = (idUser) =>
                     ref.limitToLast(1).on('value',(snapshot) => {
                         // setTimeout(() => {
                         const message = snapshot.val();
-                        dispatch(addMessage(message))
+                        if (message)
+                        {
+                            dispatch(addMessage(message))
+                        }
                         // },50))
                     })
                 )
