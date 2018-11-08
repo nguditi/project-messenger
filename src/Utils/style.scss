@@ -92,8 +92,13 @@ body {
     border-radius: 50%;
     border-style: solid;
     border-width: 2px;
-    border-color: #94c2ed;
+    border-color: #b21f2d;
     float: left;
+
+    &:hover {
+      cursor: pointer;
+      border-color:#94c2ed;
+    }
   }
 
   .about {
@@ -103,6 +108,10 @@ body {
 
   .about {
     padding-left: 4px;
+  }
+
+  .unread{
+    float:right
   }
 
   .status {
@@ -130,6 +139,7 @@ body {
       border-width: 2px;
       border-color: #94c2ed;
       float: left;
+
     }
 
     .chat-about {
@@ -155,7 +165,7 @@ body {
 
       &:hover {
         cursor: pointer;
-        color: #0149ff;
+        color: #00dfdd;
         font-size: 35px;
       }
     }
@@ -168,7 +178,7 @@ body {
 
       &:hover {
         cursor: pointer;
-        color: #D8DADF;
+        color: #00dfdd;
         font-size: 35px;
       }
     }
@@ -335,13 +345,14 @@ body {
   color: $orange;
 }
 
-.me {
-  color: $blue;
-}
-
 .clearfix:after {
   visibility: hidden;
   font-size: 0;
   height: 0;
 }
 
+.me {
+  margin-top: 20px;
+  font-size: 20px;
+  color: $blue;
+}

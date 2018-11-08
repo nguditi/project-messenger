@@ -68,7 +68,7 @@ class InputMessenger extends Component {
         let listimg = this.state.preImg.map((img,index)=>
             {
                 return(
-                    <img key={index} data-key={index} src={img.currentTarget.result} alt="preview"
+                    <img key={index} data-key={index} src={img.target.result} alt="preview"
                          onClick={(e)=>this.handleClick(e)}
                     />
                 )

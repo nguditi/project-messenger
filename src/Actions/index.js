@@ -7,15 +7,15 @@ export const chatWith = (user) => ({
     avatar: user.avatar,
 })
 
-export const addImage = (img) => ({
-    type: action.ADD_IMAGE,
-    img:img
-})
-
-export const addPreImage = (img) => ({
-    type: action.ADD_PREIMAGE,
-    img:img
-})
+// export const addImage = (img) => ({
+//     type: action.ADD_IMAGE,
+//     img:img
+// })
+//
+// export const addPreImage = (img) => ({
+//     type: action.ADD_PREIMAGE,
+//     img:img
+// })
 
 export const searchUser = (text) =>({
     type: action.SEARCH_USER,
@@ -27,10 +27,6 @@ export const clearImg = () => ({
 })
 
 
-export const clearMessases = () => ({
-    type: action.CLEAR_MESSAGES,
-})
-
 export const addMessage = (msg) => ({
     type: action.ADD_MESSAGE,
     message: msg,
@@ -38,6 +34,11 @@ export const addMessage = (msg) => ({
 
 export const addChunkMessages = (messages) => ({
     type: action.ADD_CHUNK_MESSAGE,
+    messages: messages,
+});
+
+export const addMoreMessages = (messages) => ({
+    type: action.ADD_MORE_MESSAGE,
     messages: messages,
 });
 
@@ -88,6 +89,23 @@ export const checkStar = (id) =>
         }
     }
 
+export const loadMore = (length) =>
+    (dispatch, getState, getFirebase) => {
+        if (length < 20)
+            return
+        const firebase = getFirebase()
+        let thisid = firebase.auth().currentUser.uid;
+        let chatWith = getState().chatWith.id;
+        let storeid = (thisid > chatWith) ? thisid + chatWith : chatWith + thisid
+        let ref = firebase.database().ref(`messages/${storeid}`).orderByKey();
+        ref.endAt(getState().messages[0].id).limitToLast(40).once('value').then((dataSnapshot) => {
+            const messages = dataSnapshot.val() || [];
+            dispatch(addMoreMessages(messages))
+        })
+    }
+
+
+
 export const sendMessage = (text,listImg,idReceiver) =>
      (dispatch, getState, getFirebase) => {
         const firebase = getFirebase()
@@ -109,53 +127,34 @@ export const sendMessage = (text,listImg,idReceiver) =>
 
         if (listImg.length > 0)
         {
-               // (listImg.forEach((img)=>{
             let metadata = {
                 contentType: 'image/jpeg'
             };
-            let arrPromise = [];
-            for (let i=0;i<listImg.length; i++){
-                let uploadTask = storageRef.child(`images/`+listImg[i].name+msg.author.uid).put(listImg[i], metadata);
-                // uploadTask.on('state_changed', function(snapshot) {
-                //     switch (snapshot.state) {
-                //         case firebase.storage.TaskState.RUNNING:
-                //             break;
-                //     }
-                // })
-                arrPromise.push(uploadTask.snapshot.ref.getDownloadURL());
-            }
-            Promise.all(arrPromise).then((res)=>{
+            let arrPromiseLink = listImg.map((img)=>{
+                let now = new Date()
+                return(new Promise(function(resolve, reject) {
+                            storageRef.child(`images/${now.getTime()}${img.name}`).put(img, metadata)
+                                .then((snapshot) => {
+                                    snapshot.ref.getDownloadURL().then((downloadURL) => {
+                                        resolve(downloadURL)
+                                    });
+                                })
+                        })
+                    )
+            })
+            Promise.all(arrPromiseLink).then((res)=>{
                 res.forEach((downloadURL)=>
                 {
+                    console.log(downloadURL)
                     msg.media = [...msg.media, downloadURL]
                 })
-                Promise.all( msg.media).then((res) => {
+                Promise.all(msg.media).then((res) => {
                     let storeid = (idReceiver > author.uid) ? idReceiver + author.uid : author.uid + idReceiver
                     let ref = firebase.database().ref(`messages/${storeid}`).push()
                     msg.id = ref.key;
                     ref.set(msg);
                 })
             })
-
-                // let uploadTask = storageRef.child(`images/`+listImg[0].name+msg.author.uid).put(listImg[0], metadata);
-                // uploadTask.on('state_changed', function(snapshot){
-                //     // Observe state change events such as progress, pause, and resume
-                //     // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-                //     var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                //     switch (snapshot.state) {
-                //         case firebase.storage.TaskState.PAUSED: // or 'paused'
-                //             break;
-                //         case firebase.storage.TaskState.RUNNING: // or 'running'
-                //             break;
-                //     }
-                // }, function(error) {
-                // }, function() {
-                //     uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-                //
-                //     });
-                // });
-
-             // }))
         }
         else {
             let storeid = (idReceiver > author.uid) ? idReceiver + author.uid : author.uid + idReceiver
@@ -163,7 +162,7 @@ export const sendMessage = (text,listImg,idReceiver) =>
             msg.id = ref.key;
             ref.set(msg);
         }
-        firebase.update(`users/${author.uid}/stat/${idReceiver}`,
+         firebase.update(`users/${author.uid}/stat/${idReceiver}`,
             {
                 lastChat: Date.now()
             })
@@ -171,19 +170,22 @@ export const sendMessage = (text,listImg,idReceiver) =>
              {
                  lastChat: Date.now()
              })
+         firebase.set(`users/${author.uid}/wait/${idReceiver}`,true)
     }
 
 export const chooseUser = (idUser) =>
     (dispatch, getState, getFirebase) => {
         const firebase = getFirebase()
+
+        //ko theo nguoi truoc nua
         let refUser = firebase.database().ref(`users/${idUser}`)
+        let preUser = getState().chatWith;
         const user = {}
         refUser.once('value').then((snapshot)=> {
             user.key = idUser
             user.name = snapshot.val().displayName
             user.avatar = snapshot.val().avatarUrl
         }).then(()=>{
-            dispatch(clearMessases())
             dispatch(chatWith(user))
             dispatch(checkStar(user.key))
         })
@@ -192,23 +194,31 @@ export const chooseUser = (idUser) =>
             if (user) {
                 let thisid = user.uid;
                 let storeid = (thisid > idUser) ? thisid + idUser : idUser + thisid
+                let prestoreid = (thisid > preUser.id) ? thisid + preUser.id : preUser.id + thisid
+
+                firebase.database().ref(`messages/${prestoreid}`).off();
+                firebase.set(`users/${idUser}/wait/${thisid}`,false);
                 let ref = firebase.database().ref(`messages/${storeid}`).orderByKey();
                 ref.limitToLast(20).once('value').then((dataSnapshot) => {
                     const messages = dataSnapshot.val() || [];
                     dispatch(addChunkMessages(messages))
-                }).then(()=>
-                    ref.limitToLast(1).on('value',(snapshot) => {
-                        // setTimeout(() => {
+                }).then(() => {
+                    ref.limitToLast(1).on('value', (snapshot) => {
                         const message = snapshot.val();
-                        if (message)
-                        {
-                            dispatch(addMessage(message))
+                        if (message) {
+                                dispatch(addMessage(message))
                         }
-                        // },50))
                     })
-                )
+                })
             }
         })
+    }
+
+export const readInbox = (idSend) =>
+    (dispatch, getState, getFirebase) => {
+        const firebase = getFirebase()
+        let id = firebase.auth().currentUser.uid;
+        firebase.set(`users/${idSend}/wait/${id}`,false);
     }
 
 export const logout = () =>

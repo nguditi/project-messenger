@@ -5,12 +5,6 @@ import {connect} from 'react-redux'
 import User from "../Components/User";
 import '../Utils/style.scss'
 
-const mapStateToProps = (state) => ({
-    users: state.firebase.ordered.users,
-    searchText: state.searchBar,
-    idSender: state.firebase.auth.uid,
-});
-
 const UserContainer = ({users,searchText,idSender}) => {
     let listUser;
     if (users) {
@@ -27,29 +21,33 @@ const UserContainer = ({users,searchText,idSender}) => {
             let priValue = 100
             let thisStat = users.find(obj => obj.key === idSender)
             if (thisStat) {
-                listUser = [].concat(users)
-                    .sort((b, a) => {
+                listUser = users.sort((b, a) => {
                         if (thisStat.value.stat) {
                             let astat = thisStat.value.stat[`${a.key}`]
                             let bstat = thisStat.value.stat[`${b.key}`]
-                            if (astat && bstat) {
+                            if ((b.value.online.status !== true && a.value.online.status === true)||
+                                (b.value.online.status === true && a.value.online.status !== true))
+                            {
+                                return (b.value.online.status !== true)? 1: -1
+                            }
+                            else if (astat && bstat) {
                                 if (astat.lastChat && bstat.lastChat) {
-                                    return ((astat.star === true ? priValue : 1) * (astat.lastChat) >
+                                    return ((astat.star === true ? priValue : 1) * (astat.lastChat) -
                                         (bstat.star === true ? priValue : 1) * (bstat.lastChat))
                                 }
                                 else {
-                                    return (astat.star === true ? priValue : 1) > (bstat.star === true ? priValue : 1)
+                                    return (astat.star === true ? priValue : 1) - (bstat.star === true ? priValue : 1)
                                 }
                             }
-                            else if (astat || bstat) {
-                                return astat ? true : false
+                            else if (!astat || !bstat) {
+                                return !bstat ? 1 : -1
                             }
                             else {
-                                return true
+                                return 1
                             }
                         }
                         else {
-                            return true
+                            return 1
                         }
                     })
                     .map((user) => {
@@ -64,5 +62,11 @@ const UserContainer = ({users,searchText,idSender}) => {
         </ul>
     )
 }
+
+const mapStateToProps = (state) => ({
+    users: state.firebase.ordered.users,
+    searchText: state.searchBar,
+    idSender: state.firebase.auth.uid,
+});
 
 export default compose(firebaseConnect(['users']),connect(mapStateToProps))(UserContainer);

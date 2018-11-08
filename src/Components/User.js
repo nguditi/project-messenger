@@ -2,8 +2,9 @@ import React,{Component} from 'react';
 import '../Utils/style.scss'
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {chooseUser} from "../Actions";
+import {chooseUser,readInbox} from "../Actions";
 import {withRouter} from "react-router-dom";
+
 
 class User extends Component {
 
@@ -16,8 +17,21 @@ class User extends Component {
     }
 
     render() {
-        let state = <FontAwesomeIcon icon="circle" className="online"/>
-        let descript = 'online';
+        //unread inbox
+        let state =''
+        let unread = <div></div>
+        let descript = 'online'
+        if (this.props.user.value.wait && (this.props.user.value.wait[`${this.props.idAuth}`] === true))
+        {
+            if(this.props.chatWith.id !== this.props.user.key) {
+                unread = <FontAwesomeIcon icon="envelope" className="me"/>
+            }
+            else {
+                this.props.readInbox(this.props.chatWith.id)
+            }
+        }
+        //online
+        state = <FontAwesomeIcon icon="circle" className="online"/>
         if (!this.props.user.value.online.status) {
             state = <FontAwesomeIcon icon="circle" className="offline"/>
             let now = new Date();
@@ -35,13 +49,17 @@ class User extends Component {
                                 (hour > 1) ? `${hour} hours ago` :
                                     (minute === 1) ? `1 minute ago` :
                                         (minute > 1) ? `${minute} minutes ago` :
-                                            `a few seconds ago`}`
+                                            `a few seconds`}`
         }
         return (
             <li className="clearfix">
-                <img src={this.props.user.value.avatarUrl} alt="avatar"/>
+                <img src={this.props.user.value.avatarUrl} alt="avatar" onClick={()=>this.onClickUser()}/>
+                <div className="unread">
+                    {unread}
+                </div>
                 <div className="about">
-                    <div className="name" onClick={()=>this.onClickUser()}>{this.props.user.value.displayName}</div>
+                    <div className="name" onClick={()=>this.onClickUser()}>{this.props.user.value.displayName}
+                    </div>
                     <div className="status">
                         {state}{descript}
                     </div>
@@ -54,6 +72,7 @@ class User extends Component {
 const mapStateToProps = (state) => {
     return{
         chatWith: state.chatWith,
+        idAuth: state.firebase.auth.uid,
     }
 };
 
@@ -61,6 +80,9 @@ const mapDispatchToProps = (dispatch) => {
     return {
         chooseUser:(id)=>{
             dispatch(chooseUser(id))
+        },
+        readInbox:(idsend)=>{
+            dispatch(readInbox(idsend))
         }
     }
 }

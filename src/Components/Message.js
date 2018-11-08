@@ -18,6 +18,17 @@ const Message = (msg) => {
                 <img key={index} src={img} alt="pic"/>
             )})
     }
+    let html = msg.text;
+    let media
+    let parts = msg.text.match(/(https?|ftp:)([^\s]+)/g);
+    if (parts) {
+         let links = parts.map((link,index) => {
+            if (link.match(/\.(jpeg|jpg|gif|png)/g) != null)
+                return <img key={index} src={link} alt="piclink"/>
+            return <a key={index} href={link}>{link}</a>
+        })
+        media = links
+    }
 
     if (msg.idSender === msg.author.id)
     {
@@ -28,7 +39,7 @@ const Message = (msg) => {
                     <span className="message-data-name" >{msg.author.name}</span>
                     <img src={msg.author.avatar} alt="avatar" className="float-right ml-2" />
                 </div>
-                <span className="message my-message float-right">{msg.text}
+                <span className="message my-message float-right">{html}{media}
                     {listImg}
                 </span>
             </li>
@@ -42,13 +53,12 @@ const Message = (msg) => {
                     <span className="message-data-name" >{msg.author.name}</span>
                     <span className="message-data-time" >{strTime}</span> &nbsp; &nbsp;
                 </div>
-                <span className="message other-message float-left">{msg.text}
+                <span className="message other-message float-left">{html}{media}
                     {listImg}
                 </span>
             </li>
         )
     }
-
 
 }
 

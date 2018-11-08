@@ -1,60 +1,65 @@
 import React,{Component} from 'react';
 import { connect } from 'react-redux';
 import Message from "../Components/Message";
-import { ToastContainer, toast } from 'react-toastify';
+import {loadMore} from "../Actions";
 
-const mapStateToProps = (state) => ({
-        messages: state.messages,
-        idSender: state.firebase.auth.uid,
-        idchatWith: state.chatWith.id
-});
 
 class MessagesContainer extends Component{
 
-    scrollToBottom = () => {
-        this.messagesEnd.scrollIntoView({ behavior: "auto" });
+
+    isTop= () => {
+        return this.chatBox.scrollTop === 0;
     }
 
-    ShowToast = (ms) => {
-        toast.info(`You have message from: ${ms.author.name}`, {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-        });
+    componentDidMount() {
+        this.chatBox.addEventListener('scroll', this.trackScrolling);
     }
+
+    componentWillUnmount() {
+        this.chatBox.removeEventListener('scroll', this.trackScrolling);
+    }
+
+    trackScrolling = () => {
+        if (this.isTop()){
+            this.props.loadMore(this.props.messages.length);
+        }
+    };
 
     componentDidUpdate() {
-        this.scrollToBottom();
+        this.messagesEnd.scrollIntoView({ behavior:"auto" });
     }
+
     render()
     {
-        console.log(this.props.messages)
-        let listMsgs = this.props.messages.filter((ms)=>{
-            if ((ms.author.id === this.props.idSender) || (ms.author.id === this.props.idchatWith)) {
-                return true
-            }
-            else {
-                this.ShowToast(ms)
-                return false
-            }
-        }).map((msg) => {
+        let listMsgs = this.props.messages.map((msg) => {
             return (<Message key={msg.id} {...msg} idSender={this.props.idSender}/>);
         })
         return (
-            <div className="chat-history" id ="a-scroll">
+            <div className="chat-history" id ="a-scroll" ref={(el) => { this.chatBox = el; }}>
                 <ul className="list-unstyled">
                     {listMsgs}
                 </ul>
                 <div style={{ float:"left", clear: "both" }}
                      ref={(el) => { this.messagesEnd = el; }}>
                 </div>
-                <ToastContainer/>
             </div>)
     }
 }
 
+const mapStateToProps = (state) => ({
+    messages: state.messages,
+    idSender: state.firebase.auth.uid,
+    idchatWith: state.chatWith.id
+});
 
-export default connect(mapStateToProps)(MessagesContainer)
+const mapDispatchToProps = (dispatch) => {
+    return {
+       loadMore:(lenght) =>
+       {
+           dispatch(loadMore(lenght))
+       }
+    }
+}
+
+
+export default connect(mapStateToProps,mapDispatchToProps)(MessagesContainer)
