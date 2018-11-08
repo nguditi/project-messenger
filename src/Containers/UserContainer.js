@@ -35,7 +35,15 @@ const UserContainer = ({users,searchText,idSender}) => {
                                     return ((astat.star === true ? priValue : 1) * (astat.lastChat) -
                                         (bstat.star === true ? priValue : 1) * (bstat.lastChat))
                                 }
-                                else {
+                                else if (!astat.lastChat && bstat.lastChat)
+                                {
+                                    return -1
+                                }
+                                else if (astat.lastChat && !bstat.lastChat)
+                                {
+                                    return 1
+                                }
+                                else{
                                     return (astat.star === true ? priValue : 1) - (bstat.star === true ? priValue : 1)
                                 }
                             }
